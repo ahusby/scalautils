@@ -3,11 +3,41 @@ package ahusby.scalautils.io
 import java.io.File.separator
 import java.nio.file.{Files, Path}
 
+//import resource.managed
 import scala.io.Source
 import scala.language.reflectiveCalls
 import scala.util.Try
 
 object FileReader {
+
+  /**
+    * Brukes slik:{{{
+    * val read = readResourceFile(getClass.getClassLoader)(_)
+    * val fileContents1 = read(filename1)
+    * val fileContents2 = read(filename2)
+    * }}}
+    *
+    */
+  def readResourceFile(cl: ClassLoader)(resourcefileName: String): String = {
+    val name = resourcefileName.stripPrefix(separator)
+    val url = cl.getResource(name)
+    if (url == null) {
+      throw new ResourcefileNotFound(name)
+    } else {
+      //      managed(Source.fromURL(url)).acquireAndGet(_.mkString)
+      closing(Source.fromURL(url))(_.mkString)
+    }
+  }
+
+
+  def readFile(p: Path): Try[String] = Try {
+    val filename = p.toAbsolutePath.toString
+    if (!Files.exists(p)) throw new FileNotFound(filename)
+    if (!Files.isReadable(p)) throw new FileNotReadable(filename)
+    if (!Files.isRegularFile(p)) throw new NotARegularRegularFile(filename)
+    //    managed(Source.fromFile(p.toFile)).acquireAndGet(_.mkString)
+    closing(Source.fromFile(p.toFile))(_.mkString)
+  }
 
   class ResourcefileNotFound(msg: String) extends RuntimeException(msg)
 
@@ -17,35 +47,4 @@ object FileReader {
 
   class NotARegularRegularFile(msg: String) extends RuntimeException(msg)
 
-  def closing[A <: {def close() : Unit}, B](closeable: A)(f: A => B): B = {
-    try {
-      f(closeable)
-    } finally {
-      closeable.close()
-    }
-  }
-
-
-  def readResourceFile(classLoader: ClassLoader)(resourcefileName: String): String = {
-    assert(resourcefileName != null)
-    assert(resourcefileName.trim.length > 0)
-    val name = resourcefileName.stripPrefix(separator)
-    val url = classLoader.getResource(name)
-    if (url == null) {
-      throw new ResourcefileNotFound(name)
-    } else {
-      closing(Source.fromURL(url))(_.mkString)
-    }
-  }
-
-
-  def readFile(p: Path): Try[String] = Try {
-    assert(p != null)
-    val filename = p.toAbsolutePath.toString
-    if (!Files.exists(p)) throw new FileNotFound(filename)
-    if (!Files.isReadable(p)) throw new FileNotReadable(filename)
-    if (!Files.isRegularFile(p)) throw new NotARegularRegularFile(filename)
-    closing(Source.fromFile(p.toFile))(_.mkString)
-  }
 }
-
