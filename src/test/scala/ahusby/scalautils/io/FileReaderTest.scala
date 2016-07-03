@@ -2,7 +2,7 @@ package ahusby.scalautils.io
 
 import java.nio.file.Paths
 
-import ahusby.scalautils.io.FileReader.readResourceFile
+import ahusby.scalautils.io.FileReader.{readFile, readResourceFile}
 import org.scalatest.FunSpec
 
 class FileReaderTest extends FunSpec {
@@ -21,13 +21,21 @@ class FileReaderTest extends FunSpec {
     }
   }
 
-  describe("readFile") {
+  describe("readFile (Path)") {
     it("can read a file") {
-      val filename = "./README.md"
-      val p = Paths.get(filename)
+      val p = Paths.get("README.md")
       val actual = FileReader.readFile(p)
       assert(actual.isSuccess, actual)
       assert(actual.get.length > 0)
     }
   }
+
+  describe("readFile (String)") {
+    it("can read a file") {
+      val actual = readFile("README.md")
+      assert(actual.isSuccess, actual)
+      assert(actual.get.length > 0)
+    }
+  }
+
 }

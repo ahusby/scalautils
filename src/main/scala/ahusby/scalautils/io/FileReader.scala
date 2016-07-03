@@ -1,11 +1,10 @@
 package ahusby.scalautils.io
 
 import java.io.File.separator
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
 //import resource.managed
 import scala.io.Source
-import scala.language.reflectiveCalls
 import scala.util.Try
 
 object FileReader {
@@ -25,6 +24,7 @@ object FileReader {
       throw new ResourcefileNotFound(name)
     } else {
       //      managed(Source.fromURL(url)).acquireAndGet(_.mkString)
+      import scala.language.reflectiveCalls
       closing(Source.fromURL(url))(_.mkString)
     }
   }
@@ -38,6 +38,8 @@ object FileReader {
     //    managed(Source.fromFile(p.toFile)).acquireAndGet(_.mkString)
     closing(Source.fromFile(p.toFile))(_.mkString)
   }
+
+  def readFile(filename: String): Try[String] = readFile(Paths.get(filename))
 
   class ResourcefileNotFound(msg: String) extends RuntimeException(msg)
 
