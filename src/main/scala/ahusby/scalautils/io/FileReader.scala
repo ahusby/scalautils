@@ -11,7 +11,8 @@ object FileReader {
 
   /**
     * Brukes slik:{{{
-    * val read = readResourceFile(getClass.getClassLoader) _
+    * private val read = readResourceFile(getClass.getClassLoader) _
+    * ...
     * val fileContents1 = read(filename1)
     * val fileContents2 = read(filename2)
     * }}}
