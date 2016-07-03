@@ -9,7 +9,7 @@ class FileReaderTest extends FunSpec {
 
   describe("readResourceFile") {
     it("can read two files with one classloader") {
-      val read = readResourceFile(getClass.getClassLoader)(_)
+      val read = readResourceFile(getClass.getClassLoader) _
 
       val actual1 = read("ahusby/scalautils/io/randomText1.txt")
       val expected1 = "aaabbb"
